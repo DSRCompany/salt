@@ -76,6 +76,11 @@ _INVALID_REPO = (
     "master to continue to use this %s remote."
 )
 
+_REMOTE_CHANGED = (
+    "Cache path %s remote: %s doesn't match the new remote %s. "
+    "The repository will be re-created with the new remote."
+)
+
 log = logging.getLogger(__name__)
 
 # pylint: disable=import-error
@@ -1294,6 +1299,15 @@ class GitPython(GitProvider):
             except git.exc.InvalidGitRepositoryError:
                 log.error(_INVALID_REPO, self.cachedir, self.url, self.role)
                 return new
+            try:
+                if self.url != self.repo.remotes[0].urls[0]:
+                    log.error(_REMOTE_CHANGED, self.cachedir, self.repo.remotes[0].urls[0], self.url)
+                    shutil.rmtree(self.cachedir)
+                    self.repo = git.Repo.init(self.cachedir)
+                    new = True
+            except IndexError:
+                # There is no remote in the repo
+                new = True
 
         self.gitdir = salt.utils.path.join(self.repo.working_dir, ".git")
         self.enforce_git_config()
@@ -1770,6 +1784,15 @@ class Pygit2(GitProvider):
             except KeyError:
                 log.error(_INVALID_REPO, self.cachedir, self.url, self.role)
                 return new
+            try:
+                if self.url != self.repo.remotes[0].url:
+                    log.error(_REMOTE_CHANGED, self.cachedir, self.repo.remotes[0].url, self.url)
+                    shutil.rmtree(self.cachedir)
+                    self.repo = pygit2.init_repository(self.cachedir)
+                    new = True
+            except IndexError:
+                # There is no remote in the repo
+                new = True
 
         self.gitdir = salt.utils.path.join(self.repo.workdir, ".git")
         self.enforce_git_config()
