@@ -32,6 +32,15 @@ if HAS_PYGIT2:
 
 
 class TestGitBase(TestCase, AdaptedConfigurationTestCaseMixin):
+    @classmethod
+    def setUpClass(cls):
+        try:
+            del salt.utils.gitfs.GitFS.instance_map[
+                salt.ext.tornado.ioloop.IOLoop.current()
+            ]
+        except KeyError:
+            pass
+
     def setUp(self):
         class MockedProvider(
             salt.utils.gitfs.GitProvider
