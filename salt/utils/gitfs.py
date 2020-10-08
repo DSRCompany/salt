@@ -1301,7 +1301,12 @@ class GitPython(GitProvider):
                 return new
             try:
                 if self.url != self.repo.remotes[0].urls[0]:
-                    log.error(_REMOTE_CHANGED, self.cachedir, self.repo.remotes[0].urls[0], self.url)
+                    log.error(
+                        _REMOTE_CHANGED,
+                        self.cachedir,
+                        self.repo.remotes[0].urls[0],
+                        self.url,
+                    )
                     shutil.rmtree(self.cachedir)
                     self.repo = git.Repo.init(self.cachedir)
                     new = True
@@ -1786,7 +1791,12 @@ class Pygit2(GitProvider):
                 return new
             try:
                 if self.url != self.repo.remotes[0].url:
-                    log.error(_REMOTE_CHANGED, self.cachedir, self.repo.remotes[0].url, self.url)
+                    log.error(
+                        _REMOTE_CHANGED,
+                        self.cachedir,
+                        self.repo.remotes[0].url,
+                        self.url,
+                    )
                     shutil.rmtree(self.cachedir)
                     self.repo = pygit2.init_repository(self.cachedir)
                     new = True
